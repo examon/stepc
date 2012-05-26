@@ -90,9 +90,10 @@ def error_bad_argv():
 	print "Try '%s -h [--help] for more information." % argv[0]
 
 def show_help():
-	print "Usage: %s [-y] [--yesterday] steps" % argv[0]
+	print "Usage: %s [-y] [--yesterday] steps \n" % argv[0]
 	print "[-y] or [--yesterday]: all work will be done with yesterday's date "
 	print "[-u] or [--update]: perform only graph/index.html update"
+	print "[-sd] or [--showdata]: show last 3 records in database & backup database"
 	print "steps: number of steps"
 
 def check_argv():
@@ -107,6 +108,8 @@ def check_argv():
 			return EXIT_FAILURE
 		elif (argv[1] == "-u" or argv[1] == "--update"):
 			perform_update()
+		elif (argv[1] == "-sd" or argv[1] == "--showdata"):
+			show_databse()
 		elif (argv[1].isdigit()):
 			stream = os.popen("date +\"%Y-%m-%d\"")
 			date = stream.next()[:-1]
@@ -131,11 +134,38 @@ def check_argv():
 		error_bad_argv()
 		return EXIT_FAILURE
 
+def show_databse():
+	""" Print last three database records from DB_PATH & BACKUP_DB_PATH
+	"""
+	# DB_PATH
+	try:
+		fo = open(DB_PATH, "r")
+		data = []
+		for i in fo: data.append(i)
+		print "\n%s" % DB_PATH
+		for j in data[-3:]: print j[:-1]
+		fo.close()
+	except IOError:
+		print "error: %s does not exist!" % DB_PATH
+		return EXIT_FAILURE
+
+	# BACKUP_DB_PATH
+	try:
+		fo = open(BACKUP_DB_PATH, "r")
+		data = []
+		for i in fo: data.append(i)
+		print "\n%s" % BACKUP_DB_PATH
+		for j in data[-3:]: print j[:-1]
+		fo.close()
+	except IOError:
+		print "error: %s does not exist!" % BACKUP_DB_PATH
+		return EXIT_FAILURE
+
 def perform_update():
 	""" Update graph/index to the most recent version.
 	"""
 	print "Updating..."
-	make_graph()
+	if (make_graph() == EXIT_FAILURE): return EXIT_FAILURE
 	make_index_html()
 	mirror_local_server()	
 	print "Done!"
@@ -161,20 +191,26 @@ def backup_database(date, steps):
 def make_graph():
 	km = 1000.0
 	db_mixed = []
-	fo = open(DB_PATH, "r")
-	for i in fo: db_mixed.append(i)
-	for i in db_mixed:
-		db_date.append(i.split(' ')[0])
-		db_distance.append(round(int(i.split(' ')[1][0:-1]) * step_length / km, 1))
-		db_steps.append(int(i.split(' ')[1][0:-1]))
-	plt.plot(db_distance, line_type)
-	graph_title = "%s - %s" % (db_date[0], db_date[-1])
-	plt.title(graph_title, fontsize = font_size)
-	plt.ylabel("Distance/Day [km]", fontsize = font_size)
-	ax = pylab.gca()
-	ax.xaxis.set_visible(False)
-	plt.savefig(DIR_DEST + "plot_distance.png")
-	print "Image generated: %s" % (DIR_DEST + "plot_distance.png")
+	try:
+		fo = open(DB_PATH, "r")
+		for i in fo: db_mixed.append(i)
+		for i in db_mixed:
+			db_date.append(i.split(' ')[0])
+			db_distance.append(round(int(i.split(' ')[1][0:-1]) * step_length / km, 1))
+			db_steps.append(int(i.split(' ')[1][0:-1]))
+		plt.plot(db_distance, line_type)
+		graph_title = "%s - %s" % (db_date[0], db_date[-1])
+		plt.title(graph_title, fontsize = font_size)
+		plt.ylabel("Distance/Day [km]", fontsize = font_size)
+		ax = pylab.gca()
+		ax.xaxis.set_visible(False)
+		plt.savefig(DIR_DEST + "plot_distance.png")
+		print "Image generated: %s" % (DIR_DEST + "plot_distance.png")
+		fo.close()
+		return EXIT_SUCCESS
+	except IOError:
+		print "error: %s does not exist" % DB_PATH
+		return EXIT_FAILURE
 
 def total():
 	km = 1000.0
