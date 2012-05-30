@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -----------------------------------------------------------------------------
-# Copyright (C) 2012 exo <exo[at]tty[dot]sk>
+# Copyright (C) 2012 Tomas Meszaros <exo [at] tty [dot] sk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,21 +16,21 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
-
+#
 # -----------------------------------------------------------------------------
 # DESCRIPTION:
 #
 # stepc serves for counting user's steps, processing collected data into html
 # web page filled with graph/statistics. stepc can also automatically upload all
 # processed data to the user's server via ssh/rsync.
-
+#
 # -----------------------------------------------------------------------------
-# REQUIREMENTS:
+# DEPENDENCES:
 #
 #	matplotlib
 #	ssh
 #	rsync
-
+#
 # -----------------------------------------------------------------------------
 # USAGE:
 #
